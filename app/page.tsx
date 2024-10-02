@@ -10,11 +10,13 @@ import Navbar from '@/components/Navbar';
 import { useEffect, useRef, useState } from 'react';
 import { handleCanvaseMouseMove, handleCanvasMouseDown, handleCanvasMouseUp, handleCanvasObjectModified, handleResize, initializeFabric, renderCanvas } from '@/lib/canvas';
 import { ActiveElement } from '@/types/type';
-import { useMutation,useStorage } from '@/liveblocks.config';
+import { useMutation,useStorage, useUndo } from '@/liveblocks.config';
 import { defaultNavElement } from '@/constants';
-import { handleDelete } from '@/lib/key-events';
+import { handleDelete, handleKeyDown } from '@/lib/key-events';
 
 export default function Page() {
+  const undo = useUndo();
+  const redo = useUndo();
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const fabricRef = useRef<fabric.Canvas | null>(null)
   const isDrawing = useRef(false)
@@ -71,20 +73,30 @@ const deleteShapeFromStorage = useMutation(({storage},objectId)=>{
   
   useEffect(() => {
     const canvas = initializeFabric({ canvasRef, fabricRef })
-    canvas.on("mouse:down", (options) => {
+    canvas.on("mouse:down", (options :any) => {
       handleCanvasMouseDown({options,canvas,isDrawing,shapeRef,selectedShapeRef})
     })
-    canvas.on("mouse:move", (options) => {
+    canvas.on("mouse:move", (options:any ) => {
       handleCanvaseMouseMove({options,canvas,isDrawing,shapeRef,selectedShapeRef,syncShapeInStorage})
     })
-    canvas.on("mouse:up", (options) => {
+    canvas.on("mouse:up", (options:any) => {
       handleCanvasMouseUp({canvas,isDrawing,shapeRef,selectedShapeRef,syncShapeInStorage,setActiveElement,activeObjectRef})
     })
-    canvas.on("object:modified", (options) => {
+    canvas.on("object:modified", (options:any) => {
       handleCanvasObjectModified({options,syncShapeInStorage})
     })
     window.addEventListener("resize", () => {
       handleResize({fabricRef})
+    })
+    window.addEventListener("keydown", (e:any) => {
+     handleKeyDown({
+						e,
+						canvas: fabricRef.current,
+						undo,
+						redo,
+						syncShapeInStorage,
+						deleteShapeFromStorage,
+					})
     })
     return () => {
       canvas.dispose()
