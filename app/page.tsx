@@ -100,7 +100,7 @@ const deleteShapeFromStorage = useMutation(({storage},objectId)=>{
       <Navbar activeElement={activeElement} handleActiveElement={handleActiveElement} />
 
       <section className='flex h-full flex-row'>
-        <LeftSideBar />
+        <LeftSideBar allShapes={Array.from(canvasObjects)}/>
         <Live canvasRef={canvasRef} />
         <RightSideBar />
       </section>
