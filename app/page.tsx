@@ -8,7 +8,7 @@ import RightSideBar from '../components/RightSideBar'
 import Live from '@/components/Live';
 import Navbar from '@/components/Navbar';
 import { useEffect, useRef, useState } from 'react';
-import { handleCanvaseMouseMove, handleCanvasMouseDown, handleCanvasMouseUp, handleCanvasObjectModified, handleCanvasSelectionCreated, handleResize, initializeFabric, renderCanvas } from '@/lib/canvas';
+import { handleCanvaseMouseMove, handleCanvasMouseDown, handleCanvasMouseUp, handleCanvasObjectModified, handleCanvasObjectScaling, handleCanvasSelectionCreated, handleResize, initializeFabric, renderCanvas } from '@/lib/canvas';
 import { ActiveElement, Attributes } from '@/types/type';
 import { useMutation,useStorage, useUndo } from '@/liveblocks.config';
 import { defaultNavElement } from '@/constants';
@@ -114,6 +114,12 @@ const deleteShapeFromStorage = useMutation(({storage},objectId)=>{
 						setElementAttributes,
 					});
 				})
+    canvas.on("object:scaling", (options:any)=>{
+        handleCanvasObjectScaling({
+          options,
+          setElementAttributes
+        })
+    })
     window.addEventListener("resize", () => {
       handleResize({fabricRef})
     })
